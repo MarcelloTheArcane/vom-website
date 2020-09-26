@@ -2,7 +2,7 @@
   "hosting": [
     {
       "target": "website",
-      "public": "public",
+      "public": "dist",
       "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
       "cleanUrls": true,
       "headers": [

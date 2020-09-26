@@ -2,7 +2,7 @@ name: deploy_to_firebase_hosting
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   deploy:
@@ -10,15 +10,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
-    - name: Install npm dependencies
-      run: npm install
+      - name: Install npm dependencies
+        run: npm install
 
-    - name: Build static files
-      run: npm run build
+      - name: Build static files
+        run: npm run generate
 
-    - name: Deploy to Firebase Hosting
-      run: npm run deploy
-      env:
-        FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+      - name: Deploy to Firebase Hosting
+        run: npm run deploy
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
