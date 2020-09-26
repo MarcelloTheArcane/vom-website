@@ -1,0 +1,16 @@
+// Variables, mixins, and functions automatically imported from global.scss by @nuxtjs/styleloader (see nuxt.config.js)
+
+// Additional bootstrap
+@import '~bootstrap/scss/reboot';
+@import '~bootstrap/scss/type';
+@import '~bootstrap/scss/grid';
+
+@import '~bootstrap/scss/nav';
+@import '~bootstrap/scss/navbar';
+@import '~bootstrap/scss/buttons';
+@import '~bootstrap/scss/card';
+@import '~bootstrap/scss/utilities'; // Must be last bootstrap import
+// Required bootstrap-vue
+@import '~bootstrap-vue/src/utilities';
+// Additional bootstrap-vue
+@import '~bootstrap-vue/src/components/navbar/index';
