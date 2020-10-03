@@ -72,32 +72,6 @@ export default {
     '@nuxtjs/style-resources',
   ],
 
-  // Disable inline loading (allows for header-based CSP)
-  build: {
-    extractCSS: true,
-    extend(config, { isClient }) {
-      // Extend only webpack config for client-bundle
-      if (isClient) {
-        config.module.rules.push({
-          test: /\.(png|jpe?g|gif|svg|webp)$/,
-          loader: 'url-loader',
-          query: {
-            limit: false,
-            name: 'img/[name].[hash:7].[ext]',
-          },
-        })
-        config.module.rules.push({
-          test: /\.(woff2?|eot|ttf|otf)(\?.*)?$/,
-          loader: 'url-loader',
-          query: {
-            limit: false,
-            name: 'fonts/[name].[hash:7].[ext]',
-          },
-        })
-      }
-    },
-  },
-
   generate: {
     // Enable 404 page
     fallback: true,
