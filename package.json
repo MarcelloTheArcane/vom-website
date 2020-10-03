@@ -4,12 +4,12 @@
   "private": true,
   "scripts": {
     "dev": "nuxt",
-    "start": "nuxt start",
-    "generate": "nuxt generate",
+    "generate": "nuxt generate --fail-on-error",
     "lint:js": "eslint --ext .js,.vue .",
     "lint:style": "stylelint **/*.{vue,css}",
     "lint": "npm run lint:js && npm run lint:style",
-    "deploy": "firebase deploy --only hosting --non-interactive"
+    "deploy": "firebase deploy --only hosting --non-interactive",
+    "deploy-dev": "firebase deploy --only hosting:website --non-interactive"
   },
   "lint-staged": {
     "*.{js,vue}": "eslint",
