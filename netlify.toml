@@ -28,6 +28,9 @@
     fontSrc = "'self'"
     imgSrc = "'self'"
     manifestSrc = "'self'"
+    baseUri = "'none'"
+    formAction = "'none'"
+    frameAncestors = "'none'"
 
 [[plugins]]
   package = "netlify-plugin-checklinks"
