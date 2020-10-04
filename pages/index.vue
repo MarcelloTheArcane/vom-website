@@ -102,7 +102,7 @@ export default {
               text: 'Call',
             },
             {
-              href: 'https://www.thehotline.org/help',
+              href: 'https://www.thehotline.org/get-help/',
               style: 'secondary',
               text: 'Online Chat',
             },
