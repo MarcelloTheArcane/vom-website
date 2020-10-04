@@ -1,0 +1,10 @@
+[build]
+  publish = "dist/"
+  command = "npm run generate"
+
+[[plugins]]
+  package = "@netlify/plugin-lighthouse"
+[[plugins]]
+  package = "netlify-plugin-checklinks"
+  [plugins.inputs]
+  checkExternal = true
