@@ -81,6 +81,9 @@ export default {
     fallback: true,
   },
 
+  // Disable loading transition
+  loading: false,
+
   bootstrapVue: {
     bootstrapCSS: false,
     bootstrapVueCSS: false,
