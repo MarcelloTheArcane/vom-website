@@ -50,6 +50,7 @@
     "husky": "^4.3.0",
     "lint-staged": "^10.3.0",
     "netlify-plugin-checklinks": "^4.1.1",
+    "netlify-plugin-csp-generator": "^1.1.8",
     "node-sass": "^4.14.1",
     "prettier": "^2.1.1",
     "sass-loader": "^10.0.2",

@@ -3,7 +3,19 @@
   command = "npm run generate"
 
 [[plugins]]
-  package = "@netlify/plugin-lighthouse"
+  package = "netlify-plugin-csp-generator"
+
+  [plugins.inputs]
+    buildDir = "dist"
+
+  [plugins.inputs.policies]
+    defaultSrc = "'none'"
+    scriptSrc = "'self'"
+    styleSrc = "'self'"
+    fontSrc = "'self'"
+    imgSrc = "'self'"
+    manifestSrc = "'self'"
+
 [[plugins]]
   package = "netlify-plugin-checklinks"
   [plugins.inputs]
