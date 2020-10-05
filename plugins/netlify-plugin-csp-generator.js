@@ -98,7 +98,7 @@ function createFileProcessor (buildDir, mergedPolicies, disablePolicies, disable
 
     if (path.match(indexMatcher)) {
       return {
-        webPath: path.replace(indexMatch, '$1'),
+        webPath: path.replace(indexMatcher, '$1'),
         csp: {
           scriptSrc: scripts,
           styleSrc: [...styles, ...inlineStyles],
