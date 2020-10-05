@@ -26,8 +26,26 @@ module.exports = {
       paths.map(path => fs.promises.readFile(path, 'utf-8').then(processFile(path)))
     )
 
-    const file = processedFileHeaders
-      .map(({ webPath, cspString }) => `${webPath}\n  Content-Security-Policy: ${cspString}`)
+    const globalCSPHeaders = processedFileHeaders
+      .filter(header => Object.hasOwnProperty('global'))
+
+    const mergedGlobalCSPHeaders.reduce((finalHeader, header) => {
+        finalHeader.scriptSrc.push(...header.scriptSrc)
+        finalHeader.styleSrc.push(...header.styleSrc)
+
+        return finalHeader
+      }, { scriptSrc: [], styleSrc: [] })
+
+    const file = (
+      globalCSPHeaders.length
+        ? `/*\n  Content-Security-Policy: ${buildCSPArray(mergedPolicies, disablePolicies, globalCSP).join(' ')}`
+        : ''
+      ) + processedFileHeaders
+      .map(header => {
+        const cspString = buildCSPArray(mergedPolicies, disablePolicies, header.csp).join(' ')
+
+        return `${header.webPath}\n  Content-Security-Policy: ${cspString}`
+      })
       .join('\n')
 
     fs.appendFileSync(`${buildDir}/_headers`, file)
@@ -76,15 +94,24 @@ function createFileProcessor (buildDir, mergedPolicies, disablePolicies, disable
     const styles = shouldGenerate('styleSrc') ? generateHashesFromElement('style') : []
     const inlineStyles = shouldGenerate('styleSrc') ? generateHashesFromStyle('[style]') : []
 
-    const webPath = path.replace(new RegExp(`^${buildDir}(.*)(index|404)\\.html$`), '$1')
-    const cspString = buildCSPArray(mergedPolicies, disablePolicies, {
-      scriptSrc: scripts,
-      styleSrc: [...styles, ...inlineStyles],
-    }).join(' ')
+    const indexMatch = new RegExp(`^${buildDir}(.*)index\\.html$`)
 
-    return {
-      webPath,
-      cspString,
+    if (indexMatch) {
+      return {
+        webPath: path.replace(indexMatch, '$1'),
+        csp: {
+          scriptSrc: scripts,
+          styleSrc: [...styles, ...inlineStyles],
+        },
+      }
+    } else {
+      return {
+        webPath: path.replace(new RegExp(`^${buildDir}(.*\\/).*?\\.html$`), '$1')
+        global: {
+          scriptSrc: scripts,
+          styleSrc: [...styles, ...inlineStyles],
+        },
+      }
     }
   }
 }
