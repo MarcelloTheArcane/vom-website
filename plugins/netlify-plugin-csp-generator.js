@@ -94,9 +94,9 @@ function createFileProcessor (buildDir, mergedPolicies, disablePolicies, disable
     const styles = shouldGenerate('styleSrc') ? generateHashesFromElement('style') : []
     const inlineStyles = shouldGenerate('styleSrc') ? generateHashesFromStyle('[style]') : []
 
-    const indexMatch = new RegExp(`^${buildDir}(.*)index\\.html$`)
+    const indexMatcher = new RegExp(`^${buildDir}(.*)index\\.html$`)
 
-    if (indexMatch) {
+    if (path.match(indexMatcher)) {
       return {
         webPath: path.replace(indexMatch, '$1'),
         csp: {
