@@ -29,7 +29,7 @@ module.exports = {
     const globalCSPHeaders = processedFileHeaders
       .filter(header => Object.hasOwnProperty('global'))
 
-    const mergedGlobalCSPHeaders.reduce((finalHeader, header) => {
+    const mergedGlobalCSPHeaders = globalCSPHeaders.reduce((finalHeader, header) => {
         finalHeader.scriptSrc.push(...header.scriptSrc)
         finalHeader.styleSrc.push(...header.styleSrc)
 
@@ -38,7 +38,7 @@ module.exports = {
 
     const file = (
       globalCSPHeaders.length
-        ? `/*\n  Content-Security-Policy: ${buildCSPArray(mergedPolicies, disablePolicies, globalCSP).join(' ')}`
+        ? `/*\n  Content-Security-Policy: ${buildCSPArray(mergedPolicies, disablePolicies, mergedGlobalCSPHeaders).join(' ')}`
         : ''
       ) + processedFileHeaders
       .map(header => {
