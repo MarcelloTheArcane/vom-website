@@ -16,7 +16,7 @@
   compress = false
 
 [[plugins]]
-  package = "netlify-plugin-csp-generator"
+  package = "/plugins/netlify-plugin-csp-generator"
 
   [plugins.inputs]
     buildDir = "dist"
