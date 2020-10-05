@@ -106,7 +106,7 @@ function createFileProcessor (buildDir, mergedPolicies, disablePolicies, disable
       }
     } else {
       return {
-        webPath: path.replace(new RegExp(`^${buildDir}(.*\\/).*?\\.html$`), '$1')
+        webPath: path.replace(new RegExp(`^${buildDir}(.*\\/).*?\\.html$`), '$1'),
         global: {
           scriptSrc: scripts,
           styleSrc: [...styles, ...inlineStyles],
