@@ -76,7 +76,7 @@ function createFileProcessor (buildDir, mergedPolicies, disablePolicies, disable
     const styles = shouldGenerate('styleSrc') ? generateHashesFromElement('style') : []
     const inlineStyles = shouldGenerate('styleSrc') ? generateHashesFromStyle('[style]') : []
 
-    const webPath = path.replace(new RegExp(`^${buildDir}(.*)index\\.html$`), '$1')
+    const webPath = path.replace(new RegExp(`^${buildDir}(.*)(index|404)\\.html$`), '$1')
     const cspString = buildCSPArray(mergedPolicies, disablePolicies, {
       scriptSrc: scripts,
       styleSrc: [...styles, ...inlineStyles],
