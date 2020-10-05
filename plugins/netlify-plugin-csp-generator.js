@@ -17,6 +17,7 @@ module.exports = {
 
     const lookup = [htmlFiles].concat(excludeFiles)
     const paths = await globby(lookup)
+    console.log(paths)
     console.info(`Found ${paths.length} HTML ${paths.length === 1 ? 'file' : 'files'}`)
 
     const processFile = createFileProcessor(buildDir, mergedPolicies, disablePolicies, disableGeneratedPolicies)
@@ -33,6 +34,7 @@ module.exports = {
 
     const completedTime = performance.now() - startTime
     console.info(`Saved at ${buildDir}/_headers - ${(completedTime / 1000).toFixed(2)} seconds`)
+    console.log(fs.readFileSync(`${buildDir}/_headers`, 'utf-8'))
   },
 }
 
