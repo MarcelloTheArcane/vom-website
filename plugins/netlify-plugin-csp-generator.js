@@ -17,42 +17,30 @@ module.exports = {
 
     const lookup = [htmlFiles].concat(excludeFiles)
     const paths = await globby(lookup)
-    console.log(paths)
     console.info(`Found ${paths.length} HTML ${paths.length === 1 ? 'file' : 'files'}`)
 
-    const processFile = createFileProcessor(buildDir, mergedPolicies, disablePolicies, disableGeneratedPolicies)
+    const processFile = createFileProcessor(buildDir, disableGeneratedPolicies)
 
     const processedFileHeaders = await Promise.all(
       paths.map(path => fs.promises.readFile(path, 'utf-8').then(processFile(path)))
     )
 
-    const globalCSPHeaders = processedFileHeaders
-      .filter(header => Object.hasOwnProperty('global'))
+    const { globalHeaders, localHeaders } = processedFileHeaders
+      .reduce(splitToGlobalAndLocal, { globalHeaders: [], localHeaders: [] })
 
-    const mergedGlobalCSPHeaders = globalCSPHeaders.reduce((finalHeader, header) => {
-        finalHeader.scriptSrc.push(...header.scriptSrc)
-        finalHeader.styleSrc.push(...header.styleSrc)
-
-        return finalHeader
-      }, { scriptSrc: [], styleSrc: [] })
-
-    const file = (
-      globalCSPHeaders.length
-        ? `/*\n  Content-Security-Policy: ${buildCSPArray(mergedPolicies, disablePolicies, mergedGlobalCSPHeaders).join(' ')}`
-        : ''
-      ) + processedFileHeaders
-      .map(header => {
-        const cspString = buildCSPArray(mergedPolicies, disablePolicies, header.csp).join(' ')
-
-        return `${header.webPath}\n  Content-Security-Policy: ${cspString}`
-      })
-      .join('\n')
+    const file = globalHeaders
+      .concat(...localHeaders)
+      .map(({ webPath, cspObject }) => {
+        const cspString = buildCSPArray(mergedPolicies, disablePolicies, cspObject).join(' ')
+        return `${webPath}\n  Content-Security-Policy: ${cspString}`
+      }).join('\n')
 
     fs.appendFileSync(`${buildDir}/_headers`, file)
 
+    console.log(file)
+
     const completedTime = performance.now() - startTime
     console.info(`Saved at ${buildDir}/_headers - ${(completedTime / 1000).toFixed(2)} seconds`)
-    console.log(fs.readFileSync(`${buildDir}/_headers`, 'utf-8'))
   },
 }
 
@@ -83,7 +71,7 @@ function mergeWithDefaultPolicies (policies) {
   return {...defaultPolicies, ...policies}
 }
 
-function createFileProcessor (buildDir, mergedPolicies, disablePolicies, disableGeneratedPolicies) {
+function createFileProcessor (buildDir, disableGeneratedPolicies) {
   return path => file => {
     const dom = new JSDOM(file)
     const shouldGenerate = (key) => !(disableGeneratedPolicies || []).includes(key)
@@ -95,23 +83,27 @@ function createFileProcessor (buildDir, mergedPolicies, disablePolicies, disable
     const inlineStyles = shouldGenerate('styleSrc') ? generateHashesFromStyle('[style]') : []
 
     const indexMatcher = new RegExp(`^${buildDir}(.*)index\\.html$`)
+    const nonIndexMatcher = new RegExp(`^${buildDir}(.*\\/).*?\\.html$`)
 
+    let webPath = null
+    let globalCSP = null
     if (path.match(indexMatcher)) {
-      return {
-        webPath: path.replace(indexMatcher, '$1'),
-        csp: {
-          scriptSrc: scripts,
-          styleSrc: [...styles, ...inlineStyles],
-        },
-      }
+      webPath = path.replace(indexMatcher, '$1')
+      globalCSP = false
     } else {
-      return {
-        webPath: path.replace(new RegExp(`^${buildDir}(.*\\/).*?\\.html$`), '$1'),
-        global: {
-          scriptSrc: scripts,
-          styleSrc: [...styles, ...inlineStyles],
-        },
-      }
+      webPath = path.replace(nonIndexMatcher, '$1*')
+      globalCSP = true
+    }
+
+    const cspObject = {
+      scriptSrc: scripts,
+      styleSrc: [...styles, ...inlineStyles],
+    }
+
+    return {
+      webPath,
+      cspObject,
+      globalCSP,
     }
   }
 }
@@ -135,9 +127,29 @@ function buildCSPArray (allPolicies, disablePolicies, hashes) {
   const camelCaseToKebabCase = (string) => string.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase()
 
   return Object.entries(allPolicies)
-    .filter(([key, defaultPolicy]) => (hashes[key] || defaultPolicy) && !(disablePolicies || []).includes(key))
+    .filter(([key, defaultPolicy]) => {
+      const generatedOrDefault = (hashes[key] && hashes[key].length) || defaultPolicy
+      const notDisabled = !(disablePolicies || []).includes(key)
+      return generatedOrDefault && notDisabled
+    })
     .map(([key, defaultPolicy]) => {
       const policy = `${hashes[key] && hashes[key].join(' ') || ''} ${defaultPolicy}`;
       return `${camelCaseToKebabCase(key)} ${policy.trim()};`
     })
+}
+
+function splitToGlobalAndLocal (final, header) {
+  if (header.globalCSP) {
+    const existingIndex = final.globalHeaders.findIndex(({ webPath }) => webPath === header.webPath)
+    if (existingIndex !== -1) {
+      final.globalHeaders[existingIndex].cspObject.scriptSrc.push(...header.cspObject.scriptSrc)
+      final.globalHeaders[existingIndex].cspObject.styleSrc.push(...header.cspObject.styleSrc)
+    } else {
+      final.globalHeaders.push(header)
+    }
+  } else {
+    final.localHeaders.push(header)
+  }
+
+  return final
 }
